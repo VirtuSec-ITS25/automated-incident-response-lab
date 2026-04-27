@@ -1,0 +1,22 @@
+# Vagrant
+.vagrant/
+*.log
+
+# Ansible
+*.retry
+inventory.ini
+credentials.yml
+
+# OS generated files
+.DS_Store
+thumbs.db
+
+# VirtualBox / VMware specific
+*.vbox
+*.vbox-prev
+*.vdi
+*.vmdk
+*.nvram
+
+# User specific environment files
+.env

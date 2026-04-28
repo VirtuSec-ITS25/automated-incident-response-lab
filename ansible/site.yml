@@ -1,0 +1,9 @@
+---
+# Master playbook — runs the wazuh_agent role against all agents
+# Run with: ansible-playbook -i inventory/hosts.ini site.yml
+
+- name: Configure Wazuh agents
+  hosts: wazuh_agents
+  become: yes
+  roles:
+    - wazuh_agent

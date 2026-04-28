@@ -1,0 +1,27 @@
+---
+- name: Clean up after attack scenario
+  hosts: wazuh_agents
+  become: yes
+  tasks:
+    - name: Remove test user
+      user:
+        name: testuser
+        state: absent
+        remove: yes
+
+    - name: Restore SSH — disable password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+      notify: Restart SSH
+
+    - name: Clear iptables rules from active response
+      command: iptables -F INPUT
+      ignore_errors: yes
+
+  handlers:
+    - name: Restart SSH
+      systemd:
+        name: ssh
+        state: restarted

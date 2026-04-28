@@ -1,0 +1,5 @@
+---
+# ⚠️  Replace with your actual Tailscale IPs!
+wazuh_manager_ip: "100.x.x.x"   # Tailscale IP of the manager VM (PC A)
+wazuh_agent_name: "server1"      # Name shown in the Wazuh dashboard
+wazuh_version: "4.7"             # Wazuh version to install

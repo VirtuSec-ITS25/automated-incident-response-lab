@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "wazuh-manager" do |w|
     w.vm.hostname = "wazuh-manager"
-    w.vm.network "public_network", bridge: "Ethernet"
+    w.vm.network "public_network", bridge: "eth0"
     w.vm.provider "virtualbox" do |vb|
       vb.memory = 6144   # Minimum for Wazuh
       vb.cpus   = 4

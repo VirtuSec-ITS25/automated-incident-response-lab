@@ -1,0 +1,21 @@
+---
+- name: Install hydra
+  apt:
+    name: hydra
+    state: present
+    update_cache: yes
+
+- name: Deploy attack script from template
+  template:
+    src: run_attack.sh.j2
+    dest: /tmp/run_attack.sh
+    mode: "0755"
+
+- name: Run Hydra brute force attack
+  command: /tmp/run_attack.sh
+  register: hydra_result
+  ignore_errors: yes
+
+- name: Show attack results
+  debug:
+    var: hydra_result.stdout_lines

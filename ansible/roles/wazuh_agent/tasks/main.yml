@@ -1,0 +1,36 @@
+---
+- name: Add Wazuh GPG key
+  apt_key:
+    url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    state: present
+
+- name: Add Wazuh apt repository
+  apt_repository:
+    repo: "deb https://packages.wazuh.com/4.x/apt/ stable main"
+    filename: wazuh
+    state: present
+
+- name: Install wazuh-agent
+  apt:
+    name: wazuh-agent
+    update_cache: yes
+    state: present
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+    WAZUH_AGENT_NAME: "{{ wazuh_agent_name }}"
+
+- name: Render ossec.conf from template
+  template:
+    src: ossec.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: "0640"
+  notify: restart wazuh-agent
+
+- name: Enable and start wazuh-agent
+  systemd:
+    name: wazuh-agent
+    enabled: yes
+    state: started
+    daemon_reload: yes

@@ -1,0 +1,28 @@
+<ossec_config>
+  <client>
+    <!-- Tailscale IP for the manager VM — rendered from defaults/main.yml -->
+    <server>
+      <address>{{ wazuh_manager_ip }}</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+    <config-profile>ubuntu, ubuntu22</config-profile>
+    <notify_time>10</notify_time>
+    <time-reconnect>60</time-reconnect>
+    <auto_restart>yes</auto_restart>
+  </client>
+
+  <logging>
+    <log_format>plain</log_format>
+  </logging>
+
+  <syscheck>
+    <frequency>300</frequency>
+    <directories>/etc,/usr/bin,/usr/sbin</directories>
+    <directories>/bin,/sbin</directories>
+  </syscheck>
+
+  <active-response>
+    <disabled>no</disabled>
+  </active-response>
+</ossec_config>

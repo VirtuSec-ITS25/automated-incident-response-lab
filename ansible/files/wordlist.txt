@@ -1,0 +1,15 @@
+password
+123456
+password123
+admin
+root
+qwerty
+letmein
+welcome
+monkey
+dragon
+test
+1234
+pass
+secret
+abc123

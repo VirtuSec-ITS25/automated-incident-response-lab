@@ -1,0 +1,15 @@
+---
+# tasks file for web_security
+# Focus: Brute force detection and log monitoring
+
+- name: Configure Wazuh to monitor auth.log for SSH brute force
+  ansible.builtin.blockinfile:
+    path: /var/ossec/etc/ossec.conf
+    insertafter: "<ossec_config>"
+    marker: ""
+    block: |
+      <localfile>
+        <log_format>syslog</log_format>
+        <location>/var/log/auth.log</location>
+      </localfile>
+  notify: Restart wazuh-agent

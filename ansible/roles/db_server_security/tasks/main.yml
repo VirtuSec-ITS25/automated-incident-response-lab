@@ -1,0 +1,13 @@
+---
+# tasks file for db_security
+# Focus: File Integrity Monitoring (FIM)
+
+- name: Configure Wazuh for real-time FIM on database configs
+  ansible.builtin.blockinfile:
+    path: /var/ossec/etc/ossec.conf
+    insertafter: "<syscheck>"
+    marker: ""
+    block: |
+      <directories check_all="yes" report_changes="yes" realtime="yes">/etc/postgresql</directories>
+      <directories check_all="yes" report_changes="yes" realtime="yes">/var/lib/postgresql</directories>
+  notify: Restart wazuh-agent

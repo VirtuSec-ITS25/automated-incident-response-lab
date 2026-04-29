@@ -2,8 +2,20 @@
 # Master playbook — runs the wazuh_agent role against all agents
 # Run with: ansible-playbook -i inventory/hosts.ini site.yml
 
-- name: Configure Wazuh agents
+- name: Install Wazuh base agent on all nodes
   hosts: wazuh_agents
   become: yes
   roles:
-    - wazuh_agent
+    - wazuh_agent # Matches your folder name
+
+- name: Apply Web Server Security Policies
+  hosts: web_servers
+  become: yes
+  roles:
+    - web_security
+
+- name: Apply Database Server Security Policies
+  hosts: db_servers
+  become: yes
+  roles:
+    - db_security

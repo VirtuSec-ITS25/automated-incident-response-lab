@@ -32,7 +32,6 @@ Vagrant.configure("2") do |config|
     end
 
     m.vm.provision "shell", inline: <<-SHELL
-      apt-get update -y -qq
       apt-get install -y -qq ansible
       [ -f /home/vagrant/.ssh/id_ed25519 ] || \
         sudo -u vagrant ssh-keygen -t ed25519 \

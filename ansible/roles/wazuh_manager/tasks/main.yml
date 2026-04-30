@@ -1,0 +1,32 @@
+---
+# OBS: Detta steg tar 5-10 minuter vid första körning.
+# creates: gör steget idempotent — hoppas över om Wazuh redan är installerat.
+
+- name: Download Wazuh installation assistant
+  get_url:
+    url: https://packages.wazuh.com/4.7/wazuh-install.sh
+    dest: /tmp/wazuh-install.sh
+    mode: "0755"
+
+- name: Run Wazuh all-in-one installation (indexer + server + dashboard)
+  command: bash /tmp/wazuh-install.sh -a
+  args:
+    creates: /var/ossec/bin/wazuh-control
+
+- name: Ensure Wazuh Manager is started and enabled
+  systemd:
+    name: wazuh-manager
+    state: started
+    enabled: true
+
+- name: Ensure Wazuh Indexer is started and enabled
+  systemd:
+    name: wazuh-indexer
+    state: started
+    enabled: true
+
+- name: Ensure Wazuh Dashboard is started and enabled
+  systemd:
+    name: wazuh-dashboard
+    state: started
+    enabled: true

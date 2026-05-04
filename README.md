@@ -21,7 +21,8 @@
 
 ## Architecture
 
-<img width="1289" height="732" alt="Skärmbild 2026-05-04 130435" src="https://github.com/user-attachments/assets/9437ae0a-62af-47a0-af7e-131c3390accf" />
+<img width="1263" height="697" alt="Skärmbild 2026-05-04 130712" src="https://github.com/user-attachments/assets/b0bf18ef-9185-4a25-aaf6-b0cf3d94b2af" />
+
 
 ```
 

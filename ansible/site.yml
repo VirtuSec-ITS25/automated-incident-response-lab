@@ -1,9 +1,17 @@
 ---
-# Master playbook — runs the wazuh_agent role against all agents
-# Run with: ansible-playbook -i inventory/hosts.ini site.yml
+# Install Wazuh Manager All-in-One
 
-- name: Configure Wazuh agents
-  hosts: wazuh_agents
+- name: Install Wazuh Manager
+  hosts: wazuh_manager
   become: yes
-  roles:
-    - wazuh_agent
+  tasks:
+    - name: Download Wazuh installation script
+      get_url:
+        url: https://packages.wazuh.com/4.14/wazuh-install.sh
+        dest: /tmp/wazuh-install.sh
+        mode: "0700"
+
+    - name: Run the all-in-one installer
+      command: bash /tmp/wazuh-install.sh -a
+      args:
+        creates: /var/ossec/bin/wazuh-control

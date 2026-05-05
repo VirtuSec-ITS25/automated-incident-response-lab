@@ -8,7 +8,7 @@
 #   web-agent      192.168.56.11  — Simulated web server / attack target   (1 GB)
 #   db-agent       192.168.56.12  — Simulated database server               (1 GB)
 #
-# Total RAM: ~8 GB 
+# Total RAM: ~8 GB
 # All configuration is handled by Ansible after "vagrant up"
 
 MANAGER_IP = "192.168.56.10"
@@ -29,6 +29,12 @@ Vagrant.configure("2") do |config|
       vb.name   = "wazuh-manager"
       vb.memory = 6144
       vb.cpus   = 4
+      # Add SSH key for Ansible self-management
+    m.vm.provision "shell", inline: <<-SHELL
+      cat /home/vagrant/.ssh/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
+      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+      chmod 600 /home/vagrant/.ssh/authorized_keys
+    SHELL
     end
 
     m.vm.provision "shell", inline: <<-SHELL

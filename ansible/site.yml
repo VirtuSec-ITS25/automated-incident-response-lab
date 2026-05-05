@@ -1,7 +1,34 @@
 ---
-# Master playbook — runs the wazuh_agent role against all agents
-# Run with: ansible-playbook -i inventory/hosts.ini site.yml
+# Scans the SSH host keys from web-agent and db-agent and adds them
+# to ~/.ssh/known_hosts so Ansible can connect without manual confirmation.
+- name: Add agent SSH keys to known_hosts
+  hosts: wazuh_manager
+  become: no
+  tasks:
+    - name: Scan and add agent host keys
+      shell: |
+        ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
+      loop:
+        - "{{ hostvars['web-agent'].ansible_host }}"
+        - "{{ hostvars['db-agent'].ansible_host }}"
 
+# Install Wazuh Manager All-in-One
+- name: Install Wazuh Manager
+  hosts: wazuh_manager
+  become: yes
+  tasks:
+    - name: Download Wazuh installation script
+      get_url:
+        url: https://packages.wazuh.com/4.14/wazuh-install.sh
+        dest: /tmp/wazuh-install.sh
+        mode: "0700"
+
+    - name: Run the all-in-one installer
+      command: bash /tmp/wazuh-install.sh -a
+      args:
+        creates: /var/ossec/bin/wazuh-control
+
+# Installs and configures the Wazuh agent on all hosts in [wazuh_agents]
 - name: Configure Wazuh agents
   hosts: wazuh_agents
   become: yes

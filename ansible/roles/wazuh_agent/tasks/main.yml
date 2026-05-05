@@ -34,3 +34,19 @@
     enabled: yes
     state: started
     daemon_reload: yes
+
+- name: Configure agent to monitor auth.log
+  blockinfile:
+    path: /var/ossec/etc/ossec.conf
+    insertafter: "<ossec_config>"
+    block: |
+      <localfile>
+        <log_format>syslog</log_format>
+        <location>/var/log/auth.log</location>
+      </localfile>
+  notify: restart wazuh-agent
+
+- name: Restart wazuh-agent to apply changes
+  systemd:
+    name: wazuh-agent
+    state: restarted

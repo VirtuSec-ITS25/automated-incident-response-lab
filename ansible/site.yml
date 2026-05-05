@@ -15,3 +15,9 @@
       command: bash /tmp/wazuh-install.sh -a
       args:
         creates: /var/ossec/bin/wazuh-control
+
+- name: Configure Wazuh agents
+  hosts: wazuh_agents
+  become: yes
+  roles:
+    - wazuh_agent

@@ -1,6 +1,18 @@
 ---
-# Install Wazuh Manager All-in-One
+# Scans the SSH host keys from web-agent and db-agent and adds them
+# to ~/.ssh/known_hosts so Ansible can connect without manual confirmation.
+- name: Add agent SSH keys to known_hosts
+  hosts: wazuh_manager
+  become: no
+  tasks:
+    - name: Scan and add agent host keys
+      shell: |
+        ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
+      loop:
+        - "{{ hostvars['web-agent'].ansible_host }}"
+        - "{{ hostvars['db-agent'].ansible_host }}"
 
+# Install Wazuh Manager All-in-One
 - name: Install Wazuh Manager
   hosts: wazuh_manager
   become: yes
@@ -16,6 +28,7 @@
       args:
         creates: /var/ossec/bin/wazuh-control
 
+# Installs and configures the Wazuh agent on all hosts in [wazuh_agents]
 - name: Configure Wazuh agents
   hosts: wazuh_agents
   become: yes

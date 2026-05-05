@@ -8,7 +8,7 @@
 #   web-agent      192.168.56.11  — Simulated web server / attack target   (1 GB)
 #   db-agent       192.168.56.12  — Simulated database server               (1 GB)
 #
-# Total RAM: ~8 GB 
+# Total RAM: ~8 GB
 # All configuration is handled by Ansible after "vagrant up"
 
 MANAGER_IP = "192.168.56.10"

@@ -151,7 +151,9 @@ Sensitive variables are managed via `ansible/group_vars/all.yml` or a local `sec
 
 ---
 
-## ✅ Verification
+## Verification
+
+Dashboard is accessible at [https://192.168.56.10](https://192.168.56.10) (or https://localhost:8443 if using port forwarding). Log in using the admin credentials found in wazuh-passwords.txt after deployment.
 
 To verify that the lab is functioning correctly, run the verification script:
 ```bash
@@ -165,7 +167,9 @@ bash scripts/verify.sh
 
 ---
 
-## 💡 Design Choices and Justification
+## Design Choices and Justification
+
+To ensure system stability across reboots, the implementation of idempotent Ansible playboks is in use.
 
 * **EDR Selection (Wazuh):** Chosen for its robust ability to combine log analysis with active, real-time response.
 * **Infrastructure as Code (IaC):** Allows for rapid tear-down and re-deployment, which promotes a "Green IT" approach by only keeping the lab active when needed.

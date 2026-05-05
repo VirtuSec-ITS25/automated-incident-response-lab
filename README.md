@@ -19,28 +19,11 @@
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
-> [!TIP]
-> **Instruction:** Insert your architecture diagram here. See `docs/architecture.png` for reference.
+<img width="1263" height="697" alt="Skärmbild 2026-05-04 130712" src="https://github.com/user-attachments/assets/b0bf18ef-9185-4a25-aaf6-b0cf3d94b2af" />
 
-```text
-       Windows Laptop (Host)
-                |
-                | :8080 (Port Forwarding)
-                |
-┌───────────────▼──────────────────────────────────────────┐
-│             Private Network (Vagrant/Tailscale)          │
-│                                                          │
-│   ┌────────────────────────┐      ┌──────────────────┐   │
-│   │     Wazuh Manager      │      │    Wazuh Agent   │   │
-│   │    (Server Node)       │◄─────┤   (Target Node)  │   │
-│   │    192.168.56.10       │      │   192.168.56.11  │   │
-│   └───────────┬────────────┘      └─────────┬────────┘   │
-│               │                             │            │
-│               ▼                             ▼            │
-│       [Dashboard/Logs]              [Active Response]    │
-└──────────────────────────────────────────────────────────┘
+
 ```
 
 ---

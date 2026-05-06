@@ -1,6 +1,5 @@
 password
 123456
-password123
 admin
 root
 qwerty
@@ -13,3 +12,4 @@ test
 pass
 secret
 abc123
+felkod123

@@ -8,15 +8,23 @@
 - name: Create test user for brute force
   user:
     name: testuser
-    password: "{{ 'password123' | password_hash('sha512') }}"
+    password: "{{ 'felkod123' | password_hash('sha512') }}"
     state: present
     shell: /bin/bash
 
 - name: Enable password authentication via SSH
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^#?PasswordAuthentication'
-    line: 'PasswordAuthentication yes'
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication yes"
+  notify: Restart SSH
+
+- name: Override Vagrant cloud-init strict SSH rules
+  lineinfile:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication yes"
+  ignore_errors: yes
   notify: Restart SSH
 
 - name: Install UFW firewall

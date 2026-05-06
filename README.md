@@ -23,43 +23,53 @@
 
 <img width="1263" height="697" alt="Skärmbild 2026-05-04 130712" src="https://github.com/user-attachments/assets/b0bf18ef-9185-4a25-aaf6-b0cf3d94b2af" />
 
-
-```
-
 ---
 
-## 🌐 Environments and IP Addresses
+## Environments and IP Addresses
 
 | VM Name | Role | IP Address | Port Forwarding | Description |
 | :--- | :--- | :--- | :--- | :--- |
 | `wazuh-manager` | Central Server | `192.168.56.10` | `:443 → host:8443` | Handles alerts, indexing, and the dashboard. |
-| `wazuh-agent` | Monitored System | `192.168.56.11` | — | Target client running EDR agent and monitoring. |
+| `web-agent` | Monitored System | `192.168.56.11` | — | Target client running EDR agent and monitoring. |
+| `db-agent` | Monitored System | `192.168.56.12` | — | Target client running EDR agent and monitoring. |
 
 ---
 
-## 📁 Directory Structure
-
-```text
-repo/
-├── vagrant/
-│   ├── Vagrantfile          # Defines VMs and network settings
-│   └── secrets.yml          # [GITIGNORED] - Passwords and sensitive values
+## Directory Structure
+```
+automated-incident-response-lab/
 ├── ansible/
-│   ├── inventory.ini        # Defines hosts and groups for Ansible
-│   ├── site.yml             # Master playbook - runs all roles
+│   ├── files/
+│   │   └── wordlist.txt        # Dictionary for brute-force simulations
+│   ├── inventory/
+│   │   └── hosts.ini          # Target definitions and SSH variables
+│   ├── playbooks/
+│   │   ├── cleanup.yml        # Removes lab artifacts
+│   │   ├── run_attack.yml     # Executes security simulations
+│   │   └── setup_target.yml   # Prepares nodes for monitoring
 │   ├── roles/
-│   │   ├── wazuh-manager/   # Installs the server stack
-│   │   ├── wazuh-agent/     # Installs and registers the agent
-│   │   └── attacker/        # Scripts for brute-force simulation
-├── docs/
-│   └── architecture.png     # Architecture diagram
-├── .gitignore
-└── README.md
+│   │   ├── attack_target/     # Logic for configuring victim nodes
+│   │   │   ├── handlers/      # Service restarts (main.yml)
+│   │   │   └── tasks/         # Deployment logic (main.yml)
+│   │   ├── attacker/          # Logic for the simulation node
+│   │   │   ├── tasks/         # Attack scripts deployment
+│   │   │   └── templates/     # Dynamic attack scripts (run_attack.sh.j2)
+│   │   └── wazuh_agent/       # EDR deployment and log config
+│   │       ├── defaults/      # Default role variables
+│   │       ├── handlers/      # Agent service management
+│   │       ├── tasks/         # Installation and auth.log injection
+│   │       └── templates/     # Custom config (ossec.conf.j2)
+│   ├── ansible.cfg            # Global Ansible configuration
+│   └── site.yml               # Main entry point for orchestration
+├── manager_key.pub            # Public key for Wazuh Manager
+├── verify.sh                  # Validation script for security events
+├── Vagrantfile                # Infrastructure-as-Code VM definition
+└── README.md                  # Project documentation
 ```
 
 ---
 
-## ⚙️ Components
+## Components
 
 ### Vagrantfile
 Defines the virtual machines in VirtualBox. It uses environment variables for network bridges to ensure compatibility across different host environments.
@@ -67,15 +77,16 @@ Defines the virtual machines in VirtualBox. It uses environment variables for ne
 ### Ansible Configuration
 * **inventory.ini:** Groups the servers into functional units.
 * **site.yml:** Orchestrates the deployment order (Manager first, then Agent).
+* 
 
 ### Ansible Roles
 * **wazuh-manager:** Sets up the Wazuh Indexer, Dashboard, and Manager.
-* **wazuh-agent:** Registers the agent with the manager and configures monitoring rules.
+* **wazuh-agent:** Installing the agent, registering it with the manager and configuring **endpoint log collection**. The role injects configurations to monitor /var/log/auth.log to track real-time authentication tracking.
 * **attacker:** Contains tools to simulate security events (e.g., SSH brute-force).
 
 ---
 
-## 🛠 Prerequisites
+## Prerequisites
 
 **Software:**
 * VirtualBox (7.x+)
@@ -88,7 +99,7 @@ Defines the virtual machines in VirtualBox. It uses environment variables for ne
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
 # 1. Clone the repository
@@ -104,14 +115,14 @@ vagrant up
 
 ---
 
-## 🔐 Secrets
+## Secrets
 Sensitive variables are managed via `ansible/group_vars/all.yml` or a local `secrets.yml`. 
 > [!CAUTION]
 > Never commit `secrets.yml` to version control. Use `secrets_example.yml` as a template.
 
 ---
 
-## 🛡 Security Measures
+## Security Measures
 
 | Measure | Scope | Status |
 | :--- | :--- | :--- |
@@ -122,7 +133,7 @@ Sensitive variables are managed via `ansible/group_vars/all.yml` or a local `sec
 
 ---
 
-## 🔍 Security Analysis
+## Security Analysis
 
 ### Remaining Weaknesses
 1.  **Self-signed Certificates:** The dashboard uses SSL but without a public CA, which is acceptable for lab environments.
@@ -131,6 +142,7 @@ Sensitive variables are managed via `ansible/group_vars/all.yml` or a local `sec
 ### Protection Layers
 * **Network Segmentation:** Only the manager node exposes a web interface.
 * **Automation:** Zero manual intervention reduces the risk of human-induced misconfiguration.
+* **Visibility**: With centralized monitoring of /var/log/auth.log will ensure that all the login attempts are audited, both for failed and successful attempts. This creates the digital trail that is necessary for identifying unauthorized access attempts.
 
 ---
 
@@ -147,6 +159,8 @@ bash scripts/verify.sh
 * Wazuh Dashboard is reachable at `https://localhost:8443`.
 * The agent appears as "Active" in the dashboard.
 * A simulated brute-force attack triggers "Active Response" (IP is blocked).
+* Log ingestion: In the /var/log/auth.log there are authentication events visible in the Wazuh "Threat Hunting" dashboard.
+* Manual alert trigger: The SSH attempts failed (e.g., using a non-existing user) has correctly triggered Rule ID 5710 in the manager.
 
 ---
 

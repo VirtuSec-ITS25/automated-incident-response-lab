@@ -1,4 +1,4 @@
 ---
-wazuh_manager_ip: "192.168.56.10"   # IP of the manager VM 
-wazuh_agent_name: "server1"      # Name shown in the Wazuh dashboard
-wazuh_version: "4.7"             # Wazuh version to install
+wazuh_manager_ip: "192.168.56.10"            # IP of the manager VM
+wazuh_agent_name: "{{ inventory_hostname }}" # Uses the host's inventory name (e.g. web-agent, db-agent)
+wazuh_version: "4.14"                        # Wazuh version to install

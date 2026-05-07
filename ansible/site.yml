@@ -6,8 +6,10 @@
   become: no
   tasks:
     - name: Scan and add agent host keys
-      shell: |
-        ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
+      known_hosts:
+        name: "{{ item }}"
+        key: "{{ lookup('pipe', 'ssh-keyscan ' + item) }}"
+        state: present
       loop:
         - "{{ hostvars['web-agent'].ansible_host }}"
         - "{{ hostvars['db-agent'].ansible_host }}"
@@ -27,6 +29,12 @@
       command: bash /tmp/wazuh-install.sh -a
       args:
         creates: /var/ossec/bin/wazuh-control
+
+    - name: Wait for Wazuh manager to be ready on port 1514
+      wait_for:
+        host: "{{ ansible_host }}"
+        port: 1514
+        timeout: 120
 
 # Installs and configures the Wazuh agent on all hosts in [wazuh_agents]
 - name: Configure Wazuh agents

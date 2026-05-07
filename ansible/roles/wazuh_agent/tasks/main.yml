@@ -1,12 +1,13 @@
 ---
-- name: Add Wazuh GPG key
-  apt_key:
+- name: Download Wazuh GPG key
+  get_url:
     url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    state: present
+    dest: /usr/share/keyrings/wazuh.gpg
+    mode: "0644"
 
 - name: Add Wazuh apt repository
   apt_repository:
-    repo: "deb https://packages.wazuh.com/4.x/apt/ stable main"
+    repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
     filename: wazuh
     state: present
 
@@ -28,17 +29,20 @@
   systemd:
     daemon_reload: yes
 
-- name: Enable and start wazuh-agent
-  systemd:
-    name: wazuh-agent
-    enabled: yes
-    state: started
-    daemon_reload: yes
+- name: Deploy ossec.conf from template
+  template:
+    src: ossec.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: ossec
+    mode: "0640"
+  notify: restart wazuh-agent
 
 - name: Configure agent to monitor auth.log
   blockinfile:
     path: /var/ossec/etc/ossec.conf
-    insertafter: "<ossec_config>"
+    insertbefore: "</ossec_config>"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - auth.log"
     block: |
       <localfile>
         <log_format>syslog</log_format>
@@ -46,7 +50,8 @@
       </localfile>
   notify: restart wazuh-agent
 
-- name: Restart wazuh-agent to apply changes
+- name: Enable and start wazuh-agent
   systemd:
     name: wazuh-agent
-    state: restarted
+    enabled: yes
+    state: started

@@ -1,9 +1,9 @@
----
-- name: Download Wazuh GPG key
-  get_url:
-    url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    dest: /usr/share/keyrings/wazuh.gpg
-    mode: "0644"
+- name: Download and dearmor Wazuh GPG key
+  shell: |
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | \
+    gpg --dearmor -o /usr/share/keyrings/wazuh.gpg
+  args:
+    creates: /usr/share/keyrings/wazuh.gpg
 
 - name: Add Wazuh apt repository
   apt_repository:
@@ -11,9 +11,9 @@
     filename: wazuh
     state: present
 
-- name: Ensure ossec group exists
+- name: Ensure wazuh group exists
   group:
-    name: ossec
+    name: wazuh
     state: present
 
 - name: Install wazuh-agent
@@ -34,7 +34,7 @@
     src: ossec.conf.j2
     dest: /var/ossec/etc/ossec.conf
     owner: root
-    group: ossec
+    group: wazuh
     mode: "0640"
   notify: restart wazuh-agent
 

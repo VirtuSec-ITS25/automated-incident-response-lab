@@ -15,7 +15,6 @@
         content: |
           password
           123456
-          felkod123
           admin
           root
           qwerty
@@ -27,6 +26,7 @@
           1234
           pass
           secret
+          felkod123
           abc123
         dest: /tmp/wordlist.txt
 

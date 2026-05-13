@@ -7,26 +7,34 @@
   tasks:
     - name: Scan and add agent host keys
       shell: |
-        ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
+        ssh-keygen -F {{ item }} > /dev/null 2>&1 || ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
       loop:
         - "{{ hostvars['web-agent'].ansible_host }}"
         - "{{ hostvars['db-agent'].ansible_host }}"
+      changed_when: false
 
 # Install Wazuh Manager All-in-One
 - name: Install Wazuh Manager
   hosts: wazuh_manager
   become: yes
   tasks:
+    - name: Check if Wazuh is already installed
+      stat:
+        path: /var/ossec/bin/wazuh-control
+      register: wazuh_installed
+
     - name: Download Wazuh installation script
       get_url:
         url: https://packages.wazuh.com/4.14/wazuh-install.sh
         dest: /tmp/wazuh-install.sh
         mode: "0700"
+      when: not wazuh_installed.stat.exists
 
     - name: Run the all-in-one installer
       command: bash /tmp/wazuh-install.sh -a
       args:
         creates: /var/ossec/bin/wazuh-control
+      when: not wazuh_installed.stat.exists
 
 # Installs and configures the Wazuh agent on all hosts in [wazuh_agents]
 - name: Configure Wazuh agents

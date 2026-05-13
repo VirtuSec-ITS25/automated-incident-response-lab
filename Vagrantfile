@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
 
     m.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-manager"
-      vb.memory = 6144
+      vb.memory = 8192
       vb.cpus   = 4
     end
 
@@ -39,8 +39,14 @@ Vagrant.configure("2") do |config|
         sudo -u vagrant ssh-keygen -t ed25519 \
           -f /home/vagrant/.ssh/id_ed25519 \
           -N "" -C "ansible-control" -q
-      [ -f /vagrant/manager_key.pub ] || \
-        cp /home/vagrant/.ssh/id_ed25519.pub /vagrant/manager_key.pub
+      # Always overwrite — stale key from a previous run breaks agent SSH auth
+      cp /home/vagrant/.ssh/id_ed25519.pub /vagrant/manager_key.pub
+      # User-level ansible.cfg so host_key_checking=False is not ignored
+      # (/vagrant is world-writable and Ansible ignores cfg files there)
+      sudo -u vagrant tee /home/vagrant/.ansible.cfg > /dev/null << 'EOF'
+[defaults]
+host_key_checking = False
+EOF
       echo "=== Wazuh Manager done — VM 1 / 3 ==="
     SHELL
 
@@ -59,7 +65,7 @@ Vagrant.configure("2") do |config|
 
     a.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-web-agent"
-      vb.memory = 1024
+      vb.memory = 768
       vb.cpus   = 1
     end
 
@@ -78,7 +84,7 @@ Vagrant.configure("2") do |config|
 
     a.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-db-agent"
-      vb.memory = 1024
+      vb.memory = 768
       vb.cpus   = 1
     end
 

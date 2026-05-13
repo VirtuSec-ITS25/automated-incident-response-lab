@@ -1,4 +1,4 @@
 ---
 wazuh_manager_ip: "192.168.56.10"             # IP of the manager VM
 wazuh_agent_name: "{{ inventory_hostname }}"  # Uses the hostname from hosts.ini
-wazuh_version: "4.7"                          # Wazuh version to install
+wazuh_version: "4.x"                          # Wazuh version to install

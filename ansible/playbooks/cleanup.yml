@@ -8,12 +8,14 @@
         name: testuser
         state: absent
         remove: yes
+      ignore_errors: yes
 
     - name: Restore SSH — disable password authentication
       lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^PasswordAuthentication'
         line: 'PasswordAuthentication no'
+      ignore_errors: yes
       notify: Restart SSH
 
     - name: Clear iptables DROP rules added by active response

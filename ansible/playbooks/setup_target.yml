@@ -2,46 +2,5 @@
 - name: Prepare attack target
   hosts: wazuh_agents
   become: yes
-  tasks:
-    - name: Install OpenSSH server
-      apt:
-        name: openssh-server
-        state: present
-        update_cache: yes
-
-    - name: Create test user for brute force
-      user:
-        name: testuser
-        password: "{{ 'felkod123' | password_hash('sha512') }}"
-        state: present
-        shell: /bin/bash
-
-    - name: Remove cloud-init SSH config override
-      file:
-        path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
-        state: absent
-      notify: Restart SSH
-
-    - name: Enable password authentication via SSH
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^#?PasswordAuthentication"
-        line: "PasswordAuthentication yes"
-      notify: Restart SSH
-
-    - name: Install UFW firewall
-      apt:
-        name: ufw
-        state: present
-
-    - name: Enable UFW and allow SSH
-      ufw:
-        rule: allow
-        name: OpenSSH
-        state: enabled
-
-  handlers:
-    - name: Restart SSH
-      systemd:
-        name: ssh
-        state: restarted
+  roles:
+    - attack_target

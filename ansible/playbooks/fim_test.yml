@@ -1,0 +1,44 @@
+---
+- name: FIM Test — File Integrity Monitoring on db-agent
+  hosts: db-agent
+  become: yes
+  tasks:
+    - name: Create test file
+      file:
+        path: /etc/fim-test.txt
+        state: touch
+
+    - name: Wait for Wazuh to detect new file
+      pause:
+        seconds: 5
+
+    - name: Modify test file
+      shell: echo "modified" >> /etc/fim-test.txt
+
+    - name: Wait for Wazuh to detect modification
+      pause:
+        seconds: 5
+
+    - name: Delete test file
+      file:
+        path: /etc/fim-test.txt
+        state: absent
+
+    - name: Wait for Wazuh to detect deletion
+      pause:
+        seconds: 5
+
+    - name: Verify FIM alerts were generated on manager
+      delegate_to: wazuh-manager
+      shell: sudo grep -c "fim-test" /var/ossec/logs/alerts/alerts.log
+      register: fim_hits
+
+    - name: Show success
+      debug:
+        msg: "FIM is working — {{ fim_hits.stdout }} alerts generated for fim-test.txt"
+      when: fim_hits.stdout | int > 0
+
+    - name: Show failure
+      debug:
+        msg: "No FIM alerts found — check Wazuh configuration"
+      when: fim_hits.stdout | int == 0

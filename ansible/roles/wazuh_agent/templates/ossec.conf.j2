@@ -1,6 +1,6 @@
 <ossec_config>
   <client>
-    <!-- Tailscale IP for the manager VM — rendered from defaults/main.yml -->
+    <!-- Manager IP — rendered from defaults/main.yml -->
     <server>
       <address>{{ wazuh_manager_ip }}</address>
       <port>1514</port>
@@ -18,9 +18,14 @@
 
   <syscheck>
     <frequency>300</frequency>
-    <directories>/etc,/usr/bin,/usr/sbin</directories>
-    <directories>/bin,/sbin</directories>
+    <directories realtime="yes">/etc,/usr/bin,/usr/sbin</directories>
+    <directories realtime="yes">/bin,/sbin</directories>
   </syscheck>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/auth.log</location>
+  </localfile>
 
   <active-response>
     <disabled>no</disabled>

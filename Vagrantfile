@@ -29,14 +29,9 @@ Vagrant.configure("2") do |config|
       vb.name   = "wazuh-manager"
       vb.memory = 6144
       vb.cpus   = 4
-      # Add SSH key for Ansible self-management
-    m.vm.provision "shell", inline: <<-SHELL
-      cat /home/vagrant/.ssh/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
-      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
-      chmod 600 /home/vagrant/.ssh/authorized_keys
-    SHELL
     end
 
+    # 1) Generate SSH key pair and share pubkey via /vagrant
     m.vm.provision "shell", inline: <<-SHELL
       apt-get update -y -qq
       apt-get install -y -qq ansible
@@ -44,8 +39,17 @@ Vagrant.configure("2") do |config|
         sudo -u vagrant ssh-keygen -t ed25519 \
           -f /home/vagrant/.ssh/id_ed25519 \
           -N "" -C "ansible-control" -q
-      cp /home/vagrant/.ssh/id_ed25519.pub /vagrant/manager_key.pub
+      [ -f /vagrant/manager_key.pub ] || \
+        cp /home/vagrant/.ssh/id_ed25519.pub /vagrant/manager_key.pub
       echo "=== Wazuh Manager done — VM 1 / 3 ==="
+    SHELL
+
+    # 2) Add pubkey to authorized_keys (key now exists from step 1)
+    m.vm.provision "shell", inline: <<-SHELL
+      grep -qF "$(cat /home/vagrant/.ssh/id_ed25519.pub)" /home/vagrant/.ssh/authorized_keys 2>/dev/null || \
+        cat /home/vagrant/.ssh/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
+      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+      chmod 600 /home/vagrant/.ssh/authorized_keys
     SHELL
   end
 

@@ -4,8 +4,7 @@
 
 ---
 
-## Table of Contents
-
+## 📋 Table of Contents
 1. [Architecture](#architecture)
 2. [Environments and IP Addresses](#environments-and-ip-addresses)
 3. [Directory Structure](#directory-structure)
@@ -83,19 +82,15 @@ automated-incident-response-lab/
 ## Components
 
 ### Vagrantfile
-
 Defines the three virtual machines in VirtualBox on a private network. The manager generates an ed25519 SSH key pair during provisioning and shares the public key via the `/vagrant` synced folder so agents can add it to `authorized_keys`.
 
 ### ansible.cfg
-
 Minimal configuration that disables host key checking for the lab environment and sets the default inventory path.
 
 ### inventory/hosts.ini
-
 Groups the servers into functional units (`wazuh_manager`, `wazuh_agents`) and defines shared connection variables using the Vagrant SSH key.
 
 ### site.yml
-
 Orchestrates deployment in three sequential plays:
 
 1. Scans agent SSH host keys into `known_hosts` on the manager
@@ -103,35 +98,27 @@ Orchestrates deployment in three sequential plays:
 3. Installs and configures the Wazuh agent role on all nodes in `wazuh_agents`
 
 ### roles/wazuh_agent
-
 Installs the Wazuh agent using the official apt repository with a properly dearmored GPG key. Deploys `ossec.conf` from a Jinja2 template that enables real-time FIM on `/etc`, `/bin`, `/sbin`, `/usr/bin`, `/usr/sbin`, and monitors `/var/log/auth.log` for authentication events.
 
 ### roles/attack_target
-
 Creates a `testuser` account with a weak password and enables SSH password authentication to make the brute force simulation possible. Reversed entirely by `cleanup.yml`.
 
 ### roles/attacker
-
 Deploys the Hydra attack tool and generates a dynamic attack script from `run_attack.sh.j2`. The template renders the target IP at runtime from the Ansible inventory.
 
 ### playbooks/setup_target.yml
-
 Applies the `attack_target` role to all `wazuh_agents` to prepare them for the simulation.
 
 ### playbooks/run_attack.yml
-
 Runs Hydra from the manager against `web-agent` using a wordlist of common passwords targeting `testuser` over SSH.
 
 ### playbooks/fim_test.yml
-
 Automatically creates, modifies, and deletes a test file in `/etc` on `db-agent`, waits for Wazuh to detect each change via inotify, then verifies that FIM alerts were generated on the manager.
 
 ### playbooks/cleanup.yml
-
 Removes `testuser`, restores SSH password authentication to disabled, and clears any iptables DROP rules added by Wazuh active response.
 
 ### verify.sh
-
 Runs 10 automated checks covering network connectivity to both agents, all three Wazuh services, agent service status on both VMs, agent registration in the manager, and alert log integrity.
 
 ---
@@ -139,13 +126,11 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 ## Prerequisites
 
 **Software:**
-
 - VirtualBox (7.x+)
 - Vagrant (2.x+)
 - Ansible (installed locally or via control node)
 
 **Hardware Requirements:**
-
 - Minimum **8 GB RAM** — the manager stack is resource-intensive.
 - **20 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
 
@@ -153,55 +138,37 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 
 ## Getting Started
 
-**1. Clone the repository**
 ```bash
+# 1. Clone the repository
 git clone <url>
 cd automated-incident-response-lab
-```
 
-**2. Start and provision all VMs**
-```bash
+# 2. Start and provision all VMs
 vagrant up
-```
 
-**3. SSH into the manager**
-```bash
+# 3. SSH into the manager
 vagrant ssh wazuh-manager
 cd /vagrant/ansible
-```
 
-**4. Install Wazuh manager and agents**
-```bash
+# 4. Install Wazuh manager and agents
 ansible-playbook --inventory inventory/hosts.ini site.yml
-```
 
-**5. Prepare attack targets**
-```bash
+# 5. Prepare attack targets
 ansible-playbook --inventory inventory/hosts.ini playbooks/setup_target.yml
-```
 
-**6. Run SSH brute force attack**
-```bash
+# 6. Run SSH brute force attack
 ansible-playbook --inventory inventory/hosts.ini playbooks/run_attack.yml
-```
 
-**7. Run FIM test**
-```bash
+# 7. Run FIM test
 ansible-playbook --inventory inventory/hosts.ini playbooks/fim_test.yml
-```
 
-**8. Verify the environment**
-```bash
+# 8. Verify the environment
 bash verify.sh
-```
 
-**9. Clean up**
-```bash
+# 9. Clean up
 ansible-playbook --inventory inventory/hosts.ini playbooks/cleanup.yml
-```
 
-**10. Destroy VMs (from host machine)**
-```bash
+# 10. Destroy VMs (from host machine)
 exit
 vagrant destroy -f
 ```
@@ -225,25 +192,20 @@ vagrant destroy -f
 
 ### Intentional Weaknesses
 
-**SSH password authentication enabled on agents:** `setup_target.yml` enables `PasswordAuthentication yes` in `sshd_config` to make the brute force simulation possible. This is explicitly reversed by `cleanup.yml`. In a production environment, password authentication should always be disabled.
-
-**Weak password for testuser:** The `testuser` account is created with a password included in the Hydra wordlist to guarantee a successful brute force hit. This is intentional for demonstration purposes.
-
-**Attack launched from the manager:** Hydra runs on `wazuh-manager` using `connection: local`. This means the security monitoring node is also the attacker, which would never be acceptable in production. It is done here to keep the VM count at three and stay within the RAM budget.
+- **SSH password authentication enabled on agents:** `setup_target.yml` enables `PasswordAuthentication yes` in `sshd_config` to make the brute force simulation possible. This is explicitly reversed by `cleanup.yml`. In a production environment, password authentication should always be disabled.
+- **Weak password for testuser:** The `testuser` account is created with a password included in the Hydra wordlist to guarantee a successful brute force hit. This is intentional for demonstration purposes.
+- **Attack launched from the manager:** Hydra runs on `wazuh-manager` using `connection: local`. This means the security monitoring node is also the attacker, which would never be acceptable in production. It is done here to keep the VM count at three and stay within the RAM budget.
 
 ### Remaining Weaknesses
 
-**Self-signed certificates:** The dashboard uses TLS but without a public CA, which is acceptable for lab environments but would require a valid certificate in production.
-
-**Local log storage:** Logs are stored locally on the manager. A production environment would require off-site log shipping to prevent log tampering after a compromise.
+- **Self-signed certificates:** The dashboard uses TLS but without a public CA, which is acceptable for lab environments but would require a valid certificate in production.
+- **Local log storage:** Logs are stored locally on the manager. A production environment would require off-site log shipping to prevent log tampering after a compromise.
 
 ### Protection Layers
 
-**Network Segmentation:** Only the manager node exposes a web interface; agents communicate inbound only to the manager.
-
-**Automation:** Zero manual intervention reduces the risk of human-induced misconfiguration.
-
-**Visibility:** Centralized monitoring of `/var/log/auth.log` ensures all login attempts are audited — both failed and successful — creating the digital trail necessary for identifying unauthorized access attempts.
+- **Network Segmentation:** Only the manager node exposes a web interface; agents communicate inbound only to the manager.
+- **Automation:** Zero manual intervention reduces the risk of human-induced misconfiguration.
+- **Visibility:** Centralized monitoring of `/var/log/auth.log` ensures all login attempts are audited — both failed and successful — creating the digital trail necessary for identifying unauthorized access attempts.
 
 ---
 
@@ -277,19 +239,19 @@ Expected output — 10/10 checks passed:
 
 ```
 --- Network Connectivity ---
-Checking: Connectivity to Agent VM (192.168.56.11)     OK
-Checking: Connectivity to DB VM (192.168.56.12)        OK
+Checking: Connectivity to Agent VM (192.168.56.11)     ✅ OK
+Checking: Connectivity to DB VM (192.168.56.12)        ✅ OK
 --- Local Service Status (Manager) ---
-Checking: wazuh-manager service is active              OK
-Checking: wazuh-indexer service is active              OK
-Checking: wazuh-dashboard service is active            OK
+Checking: wazuh-manager service is active              ✅ OK
+Checking: wazuh-indexer service is active              ✅ OK
+Checking: wazuh-dashboard service is active            ✅ OK
 --- Remote Agent Status ---
-Checking: wazuh-agent is active on web-agent           OK
-Checking: wazuh-agent is active on db-agent            OK
-Checking: web-agent registered as Active in Manager    OK
-Checking: db-agent registered as Active in Manager     OK
+Checking: wazuh-agent is active on web-agent           ✅ OK
+Checking: wazuh-agent is active on db-agent            ✅ OK
+Checking: web-agent registered as Active in Manager    ✅ OK
+Checking: db-agent registered as Active in Manager     ✅ OK
 --- Log Integrity ---
-Checking: Wazuh alert log exists and is not empty      OK
+Checking: Wazuh alert log exists and is not empty      ✅ OK
 Results: 10 passed, 0 failed
 ```
 
@@ -317,6 +279,6 @@ Wazuh was chosen for its ability to combine log analysis with active, real-time 
 
 ---
 
-*Created by: Karin Ekenberg & Sandra Victorsson*
-*Course: Virtualization and Automation*
-*Date: 2026-04-29*
+**Created by:** Karin Ekenberg & Sandra Victorsson  
+**Course:** Virtualization and Automation  
+**Date:** 2026-04-29

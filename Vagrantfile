@@ -46,6 +46,8 @@ Vagrant.configure("2") do |config|
       sudo -u vagrant tee /home/vagrant/.ansible.cfg > /dev/null << 'EOF'
 [defaults]
 host_key_checking = False
+inventory = /vagrant/ansible/inventory/hosts.ini
+roles_path = /vagrant/ansible/roles
 EOF
       echo "=== Wazuh Manager done — VM 1 / 3 ==="
     SHELL

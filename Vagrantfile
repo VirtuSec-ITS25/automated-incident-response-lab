@@ -4,9 +4,9 @@
 # Automated Incident Response Lab
 #
 # Network layout:
-#   wazuh-manager  192.168.56.10  — Wazuh Manager + Ansible control node (6 GB)
-#   web-agent      192.168.56.11  — Simulated web server / attack target   (1 GB)
-#   db-agent       192.168.56.12  — Simulated database server               (1 GB)
+#   wazuh-manager  192.168.56.10  — Wazuh Manager + Ansible control node (8 GB)
+#   web-agent      192.168.56.11  — Simulated web server / attack target   (768 MB)
+#   db-agent       192.168.56.12  — Simulated database server               (768 MB)
 #
 # Total RAM: ~8 GB
 # All configuration is handled by Ansible after "vagrant up"
@@ -27,16 +27,11 @@ Vagrant.configure("2") do |config|
 
     m.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-manager"
-      vb.memory = 6144
+      vb.memory = 8192
       vb.cpus   = 4
-      # Add SSH key for Ansible self-management
-    m.vm.provision "shell", inline: <<-SHELL
-      cat /home/vagrant/.ssh/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
-      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
-      chmod 600 /home/vagrant/.ssh/authorized_keys
-    SHELL
     end
 
+    # 1) Generate SSH key pair and share pubkey via /vagrant
     m.vm.provision "shell", inline: <<-SHELL
       apt-get update -y -qq
       apt-get install -y -qq ansible
@@ -44,8 +39,25 @@ Vagrant.configure("2") do |config|
         sudo -u vagrant ssh-keygen -t ed25519 \
           -f /home/vagrant/.ssh/id_ed25519 \
           -N "" -C "ansible-control" -q
+      # Always overwrite — stale key from a previous run breaks agent SSH auth
       cp /home/vagrant/.ssh/id_ed25519.pub /vagrant/manager_key.pub
+      # User-level ansible.cfg so host_key_checking=False is not ignored
+      # (/vagrant is world-writable and Ansible ignores cfg files there)
+      sudo -u vagrant tee /home/vagrant/.ansible.cfg > /dev/null << 'EOF'
+[defaults]
+host_key_checking = False
+inventory = /vagrant/ansible/inventory/hosts.ini
+roles_path = /vagrant/ansible/roles
+EOF
       echo "=== Wazuh Manager done — VM 1 / 3 ==="
+    SHELL
+
+    # 2) Add pubkey to authorized_keys (key now exists from step 1)
+    m.vm.provision "shell", inline: <<-SHELL
+      grep -qF "$(cat /home/vagrant/.ssh/id_ed25519.pub)" /home/vagrant/.ssh/authorized_keys 2>/dev/null || \
+        cat /home/vagrant/.ssh/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
+      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+      chmod 600 /home/vagrant/.ssh/authorized_keys
     SHELL
   end
 
@@ -55,7 +67,7 @@ Vagrant.configure("2") do |config|
 
     a.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-web-agent"
-      vb.memory = 1024
+      vb.memory = 768
       vb.cpus   = 1
     end
 
@@ -74,7 +86,7 @@ Vagrant.configure("2") do |config|
 
     a.vm.provider "virtualbox" do |vb|
       vb.name   = "wazuh-db-agent"
-      vb.memory = 1024
+      vb.memory = 768
       vb.cpus   = 1
     end
 

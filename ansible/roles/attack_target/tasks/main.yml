@@ -8,15 +8,22 @@
 - name: Create test user for brute force
   user:
     name: testuser
-    password: "{{ 'password123' | password_hash('sha512') }}"
+    password: "{{ 'felkod123' | password_hash('sha512', 'labsalt0123456') }}"
     state: present
     shell: /bin/bash
 
 - name: Enable password authentication via SSH
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^#?PasswordAuthentication'
-    line: 'PasswordAuthentication yes'
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication yes"
+  notify: Restart SSH
+
+- name: Override cloud-init SSH settings
+  lineinfile:
+    path: /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication yes"
   notify: Restart SSH
 
 - name: Install UFW firewall

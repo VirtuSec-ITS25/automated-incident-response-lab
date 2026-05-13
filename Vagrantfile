@@ -4,9 +4,9 @@
 # Automated Incident Response Lab
 #
 # Network layout:
-#   wazuh-manager  192.168.56.10  — Wazuh Manager + Ansible control node (6 GB)
-#   web-agent      192.168.56.11  — Simulated web server / attack target   (1 GB)
-#   db-agent       192.168.56.12  — Simulated database server               (1 GB)
+#   wazuh-manager  192.168.56.10  — Wazuh Manager + Ansible control node (8 GB)
+#   web-agent      192.168.56.11  — Simulated web server / attack target   (768 MB)
+#   db-agent       192.168.56.12  — Simulated database server               (768 MB)
 #
 # Total RAM: ~8 GB
 # All configuration is handled by Ansible after "vagrant up"

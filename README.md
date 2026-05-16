@@ -284,4 +284,4 @@ Wazuh was chosen for its ability to combine log analysis with active, real-time 
 
 **Created by:** Karin Ekenberg & Sandra Victorsson  
 **Course:** Virtualization and Automation  
-**Date:** 2026-04-29
+**Date:** 2026-05-16

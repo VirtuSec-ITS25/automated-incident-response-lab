@@ -132,7 +132,7 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 
 **Hardware Requirements:**
 - Minimum **8 GB RAM** — the manager stack is resource-intensive.
-- **20 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
+- **30-40 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
 
 ---
 

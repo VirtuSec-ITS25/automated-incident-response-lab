@@ -132,7 +132,7 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 
 **Hardware Requirements:**
 - Minimum **8 GB RAM** — the manager stack is resource-intensive.
-- **20 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
+- **30-40 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
 
 ---
 
@@ -153,22 +153,25 @@ cd /vagrant/ansible
 # 4. Install Wazuh manager and agents
 ansible-playbook --inventory inventory/hosts.ini site.yml
 
-# 5. Prepare attack targets
+# 5. Get Wazuh Dashboard admin password
+sudo tar -O -xvf /tmp/wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt
+
+# 6. Prepare attack targets
 ansible-playbook --inventory inventory/hosts.ini playbooks/setup_target.yml
 
-# 6. Run SSH brute force attack
+# 7. Run SSH brute force attack
 ansible-playbook --inventory inventory/hosts.ini playbooks/run_attack.yml
 
-# 7. Run FIM test
+# 8. Run FIM test
 ansible-playbook --inventory inventory/hosts.ini playbooks/fim_test.yml
 
-# 8. Verify the environment
+# 9. Verify the environment
 bash verify.sh
 
-# 9. Clean up
+# 10. Clean up
 ansible-playbook --inventory inventory/hosts.ini playbooks/cleanup.yml
 
-# 10. Destroy VMs (from host machine)
+# 11. Destroy VMs (from host machine)
 exit
 vagrant destroy -f
 ```
@@ -281,4 +284,4 @@ Wazuh was chosen for its ability to combine log analysis with active, real-time 
 
 **Created by:** Karin Ekenberg & Sandra Victorsson  
 **Course:** Virtualization and Automation  
-**Date:** 2026-04-29
+**Date:** 2026-05-16

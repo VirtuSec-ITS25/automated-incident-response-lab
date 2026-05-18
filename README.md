@@ -16,6 +16,7 @@
 9. [Detection Rules](#detection-rules)
 10. [Verification](#verification)
 11. [Design Choices and Justification](#design-choices-and-justification)
+12. [Future Improvements and Refactoring](#future-improvements-and-refactoring)
 
 ---
 
@@ -131,7 +132,7 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 - Ansible (installed locally or via control node)
 
 **Hardware Requirements:**
-- Minimum **8 GB RAM** — the manager stack is resource-intensive.
+- Minimum **16 GB RAM** — the manager stack is resource-intensive.
 - **30-40 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
 
 ---
@@ -282,6 +283,12 @@ Wazuh was chosen for its ability to combine log analysis with active, real-time 
 
 ---
 
+## Future Improvements and Refactoring
+- **Strict Network Baseline:** Refactor the `roles/attack_target` to set up a global UFW `policy: deny` for any incoming traffic. This requires firewall rules that whitelists the specific ports of `1514` and `1515` (TCP/UDP) for the Wazuh Agent, making the log shipping uninterrupted and secure.
+- **Code Modularization:** To enhance the mantainability and scalabilty, split playbook tasks into independent, specialized Ansible roles.
+
+---
+
 **Created by:** Karin Ekenberg & Sandra Victorsson  
 **Course:** Virtualization and Automation  
-**Date:** 2026-05-16
+**Date:** 2026-05-18

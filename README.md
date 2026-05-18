@@ -5,18 +5,18 @@
 ---
 
 ## 📋 Table of Contents
-1. [Architecture](#architecture)
-2. [Environments and IP Addresses](#environments-and-ip-addresses)
-3. [Directory Structure](#directory-structure)
-4. [Components](#components)
-5. [Prerequisites](#prerequisites)
-6. [Getting Started](#getting-started)
-7. [Security Measures](#security-measures)
-8. [Security Analysis](#security-analysis)
-9. [Detection Rules](#detection-rules)
-10. [Verification](#verification)
-11. [Design Choices and Justification](#design-choices-and-justification)
-12. [Future Improvements and Refactoring](#future-improvements-and-refactoring)
+1. Architecture
+2. Environments and IP Addresses
+3. Directory Structure
+4. Components
+5. Prerequisites
+6. Getting Started
+7. Security Measures
+8. Security Analysis
+9. Detection Rules
+10. Verification
+11. Design Choices and Justification
+12. Future Improvements and Refactoring
 
 ---
 

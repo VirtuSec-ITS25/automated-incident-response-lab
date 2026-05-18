@@ -5,13 +5,13 @@
     state: present
     update_cache: yes
 
-# --- NY TASK BÖRJAR HÄR ---
+# --- NEW TASK STARTS HERE ---
 - name: Copy external wordlist to attacker machine
   copy:
     src: /vagrant/ansible/files/wordlist.txt
     dest: /home/vagrant/wordlist.txt
     mode: "0644"
-# --- NY TASK SLUTAR HÄR ---
+# --- NEW TASK ENDS HERE ---
 
 - name: Deploy attack script from template
   template:

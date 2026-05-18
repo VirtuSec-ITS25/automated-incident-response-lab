@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 1. [Architecture](#architecture)
 2. [Environments and IP Addresses](#environments-and-ip-addresses)
 3. [Directory Structure](#directory-structure)
@@ -16,6 +16,7 @@
 9. [Detection Rules](#detection-rules)
 10. [Verification](#verification)
 11. [Design Choices and Justification](#design-choices-and-justification)
+12. [Future Improvements and Refactoring](#future-improvements-and-refactoring)
 
 ---
 
@@ -131,47 +132,58 @@ Runs 10 automated checks covering network connectivity to both agents, all three
 - Ansible (installed locally or via control node)
 
 **Hardware Requirements:**
-- Minimum **8 GB RAM** — the manager stack is resource-intensive.
+- Minimum **16 GB RAM** — the manager stack is resource-intensive.
 - **30-40 GB** free disk space — recommended on external storage (e.g. `E:/Lab_Storage`).
 
 ---
 
 ## Getting Started
 
+
+1. Clone the repository
 ```bash
-# 1. Clone the repository
 git clone <url>
 cd automated-incident-response-lab
-
-# 2. Start and provision all VMs
+```
+2. Start and provision all VMs
+```bash
 vagrant up
-
-# 3. SSH into the manager
+```
+3. SSH into the manager
+```bash
 vagrant ssh wazuh-manager
 cd /vagrant/ansible
-
-# 4. Install Wazuh manager and agents
+```
+4. Install Wazuh manager and agents
+```bash
 ansible-playbook --inventory inventory/hosts.ini site.yml
-
-# 5. Get Wazuh Dashboard admin password
+```
+5. Get Wazuh Dashboard admin password
+```bash
 sudo tar -O -xvf /tmp/wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt
-
-# 6. Prepare attack targets
+```
+6. Prepare attack targets
+```bash
 ansible-playbook --inventory inventory/hosts.ini playbooks/setup_target.yml
-
-# 7. Run SSH brute force attack
+```
+7. Run SSH brute force attack
+```bash
 ansible-playbook --inventory inventory/hosts.ini playbooks/run_attack.yml
-
-# 8. Run FIM test
+```
+8. Run FIM test
+```bash
 ansible-playbook --inventory inventory/hosts.ini playbooks/fim_test.yml
-
-# 9. Verify the environment
+```
+9. Verify the environment
+```bash
 bash verify.sh
-
-# 10. Clean up
+```
+10. Clean up
+```bash
 ansible-playbook --inventory inventory/hosts.ini playbooks/cleanup.yml
-
-# 11. Destroy VMs (from host machine)
+```
+11. Destroy VMs (from host machine)
+```bash
 exit
 vagrant destroy -f
 ```
@@ -282,6 +294,11 @@ Wazuh was chosen for its ability to combine log analysis with active, real-time 
 
 ---
 
+## Future Improvements and Refactoring
+- **Strict Network Baseline:** Refactor the `roles/attack_target` to set up a global UFW `policy: deny` for any incoming traffic. This requires firewall rules that whitelists the specific ports of `1514` and `1515` (TCP/UDP) for the Wazuh Agent, making the log shipping uninterrupted and secure.
+- **Code Modularization:** To enhance the mantainability and scalabilty, split playbook tasks into independent, specialized Ansible roles.
+
+---
 **Created by:** Karin Ekenberg & Sandra Victorsson  
 **Course:** Virtualization and Automation  
-**Date:** 2026-05-16
+**Date:** 2026-05-18

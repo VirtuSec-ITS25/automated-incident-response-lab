@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 1. Architecture
 2. Environments and IP Addresses
 3. Directory Structure
